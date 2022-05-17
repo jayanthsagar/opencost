@@ -57,4 +57,15 @@ package kubecost
 // @bingen:generate:PVAllocation
 // @bingen:end
 
+// @bingen:set[name=Audit,version=1]
+// @bingen:generate:AuditDetail
+// @bingen:generate:Audit
+// @bingen:generate:AllocationReconciliationAudit
+// @bingen:generate:AuditFloatResult
+// @bingen:generate:AuditType
+// @bingen:generate:AuditStatus
+// @bingen:generate[stringtable]:AuditSet
+// @bingen:generate:AuditSetRange
+// @bingen:end
+
 //go:generate bingen -package=kubecost -version=15 -buffer=github.com/kubecost/cost-model/pkg/util

@@ -41,6 +41,9 @@ const (
 
 	// AllocationCodecVersion is used for any resources listed in the Allocation version set
 	AllocationCodecVersion uint8 = 15
+
+	// AuditCodecVersion is used for any resources listed in the Audit version set
+	AuditCodecVersion uint8 = 1
 )
 
 //--------------------------------------------------------------------------
@@ -50,26 +53,31 @@ const (
 // Generated type map for resolving interface implementations to
 // to concrete types
 var typeMap map[string]reflect.Type = map[string]reflect.Type{
-	"Allocation":            reflect.TypeOf((*Allocation)(nil)).Elem(),
-	"AllocationProperties":  reflect.TypeOf((*AllocationProperties)(nil)).Elem(),
-	"AllocationSet":         reflect.TypeOf((*AllocationSet)(nil)).Elem(),
-	"AllocationSetRange":    reflect.TypeOf((*AllocationSetRange)(nil)).Elem(),
-	"Any":                   reflect.TypeOf((*Any)(nil)).Elem(),
-	"AssetProperties":       reflect.TypeOf((*AssetProperties)(nil)).Elem(),
-	"AssetSet":              reflect.TypeOf((*AssetSet)(nil)).Elem(),
-	"AssetSetRange":         reflect.TypeOf((*AssetSetRange)(nil)).Elem(),
-	"Breakdown":             reflect.TypeOf((*Breakdown)(nil)).Elem(),
-	"Cloud":                 reflect.TypeOf((*Cloud)(nil)).Elem(),
-	"ClusterManagement":     reflect.TypeOf((*ClusterManagement)(nil)).Elem(),
-	"Disk":                  reflect.TypeOf((*Disk)(nil)).Elem(),
-	"LoadBalancer":          reflect.TypeOf((*LoadBalancer)(nil)).Elem(),
-	"Network":               reflect.TypeOf((*Network)(nil)).Elem(),
-	"Node":                  reflect.TypeOf((*Node)(nil)).Elem(),
-	"PVAllocation":          reflect.TypeOf((*PVAllocation)(nil)).Elem(),
-	"PVKey":                 reflect.TypeOf((*PVKey)(nil)).Elem(),
-	"RawAllocationOnlyData": reflect.TypeOf((*RawAllocationOnlyData)(nil)).Elem(),
-	"SharedAsset":           reflect.TypeOf((*SharedAsset)(nil)).Elem(),
-	"Window":                reflect.TypeOf((*Window)(nil)).Elem(),
+	"Allocation":                    reflect.TypeOf((*Allocation)(nil)).Elem(),
+	"AllocationProperties":          reflect.TypeOf((*AllocationProperties)(nil)).Elem(),
+	"AllocationReconciliationAudit": reflect.TypeOf((*AllocationReconciliationAudit)(nil)).Elem(),
+	"AllocationSet":                 reflect.TypeOf((*AllocationSet)(nil)).Elem(),
+	"AllocationSetRange":            reflect.TypeOf((*AllocationSetRange)(nil)).Elem(),
+	"Any":                           reflect.TypeOf((*Any)(nil)).Elem(),
+	"AssetProperties":               reflect.TypeOf((*AssetProperties)(nil)).Elem(),
+	"AssetSet":                      reflect.TypeOf((*AssetSet)(nil)).Elem(),
+	"AssetSetRange":                 reflect.TypeOf((*AssetSetRange)(nil)).Elem(),
+	"Audit":                         reflect.TypeOf((*Audit)(nil)).Elem(),
+	"AuditFloatResult":              reflect.TypeOf((*AuditFloatResult)(nil)).Elem(),
+	"AuditSet":                      reflect.TypeOf((*AuditSet)(nil)).Elem(),
+	"AuditSetRange":                 reflect.TypeOf((*AuditSetRange)(nil)).Elem(),
+	"Breakdown":                     reflect.TypeOf((*Breakdown)(nil)).Elem(),
+	"Cloud":                         reflect.TypeOf((*Cloud)(nil)).Elem(),
+	"ClusterManagement":             reflect.TypeOf((*ClusterManagement)(nil)).Elem(),
+	"Disk":                          reflect.TypeOf((*Disk)(nil)).Elem(),
+	"LoadBalancer":                  reflect.TypeOf((*LoadBalancer)(nil)).Elem(),
+	"Network":                       reflect.TypeOf((*Network)(nil)).Elem(),
+	"Node":                          reflect.TypeOf((*Node)(nil)).Elem(),
+	"PVAllocation":                  reflect.TypeOf((*PVAllocation)(nil)).Elem(),
+	"PVKey":                         reflect.TypeOf((*PVKey)(nil)).Elem(),
+	"RawAllocationOnlyData":         reflect.TypeOf((*RawAllocationOnlyData)(nil)).Elem(),
+	"SharedAsset":                   reflect.TypeOf((*SharedAsset)(nil)).Elem(),
+	"Window":                        reflect.TypeOf((*Window)(nil)).Elem(),
 }
 
 //--------------------------------------------------------------------------
@@ -1241,6 +1249,443 @@ func (target *AllocationProperties) UnmarshalBinaryWithContext(ctx *DecodingCont
 		// --- [end][read][alias](AllocationAnnotations) ---
 
 	} else {
+	}
+
+	return nil
+}
+
+//--------------------------------------------------------------------------
+//  AllocationReconciliationAudit
+//--------------------------------------------------------------------------
+
+// MarshalBinary serializes the internal properties of this AllocationReconciliationAudit instance
+// into a byte array
+func (target *AllocationReconciliationAudit) MarshalBinary() (data []byte, err error) {
+	ctx := &EncodingContext{
+		Buffer: util.NewBuffer(),
+		Table:  nil,
+	}
+
+	e := target.MarshalBinaryWithContext(ctx)
+	if e != nil {
+		return nil, e
+	}
+
+	encBytes := ctx.Buffer.Bytes()
+	return encBytes, nil
+}
+
+// MarshalBinaryWithContext serializes the internal properties of this AllocationReconciliationAudit instance
+// into a byte array leveraging a predefined context.
+func (target *AllocationReconciliationAudit) MarshalBinaryWithContext(ctx *EncodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	buff.WriteUInt8(AuditCodecVersion) // version
+
+	// --- [begin][write][alias](AuditStatus) ---
+	if ctx.IsStringTable() {
+		a := ctx.Table.AddOrGet(string(target.Status))
+		buff.WriteInt(a) // write table index
+	} else {
+		buff.WriteString(string(target.Status)) // write string
+	}
+	// --- [end][write][alias](AuditStatus) ---
+
+	if ctx.IsStringTable() {
+		b := ctx.Table.AddOrGet(target.Description)
+		buff.WriteInt(b) // write table index
+	} else {
+		buff.WriteString(target.Description) // write string
+	}
+	// --- [begin][write][reference](time.Time) ---
+	c, errA := target.LastRun.MarshalBinary()
+	if errA != nil {
+		return errA
+	}
+	buff.WriteInt(len(c))
+	buff.WriteBytes(c)
+	// --- [end][write][reference](time.Time) ---
+
+	if target.Resources == nil {
+		buff.WriteUInt8(uint8(0)) // write nil byte
+	} else {
+		buff.WriteUInt8(uint8(1)) // write non-nil byte
+
+		// --- [begin][write][map](map[string]map[string]*AuditFloatResult) ---
+		buff.WriteInt(len(target.Resources)) // map length
+		for v, z := range target.Resources {
+			if ctx.IsStringTable() {
+				d := ctx.Table.AddOrGet(v)
+				buff.WriteInt(d) // write table index
+			} else {
+				buff.WriteString(v) // write string
+			}
+			if z == nil {
+				buff.WriteUInt8(uint8(0)) // write nil byte
+			} else {
+				buff.WriteUInt8(uint8(1)) // write non-nil byte
+
+				// --- [begin][write][map](map[string]*AuditFloatResult) ---
+				buff.WriteInt(len(z)) // map length
+				for vv, zz := range z {
+					if ctx.IsStringTable() {
+						e := ctx.Table.AddOrGet(vv)
+						buff.WriteInt(e) // write table index
+					} else {
+						buff.WriteString(vv) // write string
+					}
+					if zz == nil {
+						buff.WriteUInt8(uint8(0)) // write nil byte
+					} else {
+						buff.WriteUInt8(uint8(1)) // write non-nil byte
+
+						// --- [begin][write][struct](AuditFloatResult) ---
+						buff.WriteInt(0) // [compatibility, unused]
+						errB := zz.MarshalBinaryWithContext(ctx)
+						if errB != nil {
+							return errB
+						}
+						// --- [end][write][struct](AuditFloatResult) ---
+
+					}
+				}
+				// --- [end][write][map](map[string]*AuditFloatResult) ---
+
+			}
+		}
+		// --- [end][write][map](map[string]map[string]*AuditFloatResult) ---
+
+	}
+	if target.AllocsBlankNode == nil {
+		buff.WriteUInt8(uint8(0)) // write nil byte
+	} else {
+		buff.WriteUInt8(uint8(1)) // write non-nil byte
+
+		// --- [begin][write][slice]([]string) ---
+		buff.WriteInt(len(target.AllocsBlankNode)) // array length
+		for i := 0; i < len(target.AllocsBlankNode); i++ {
+			if ctx.IsStringTable() {
+				f := ctx.Table.AddOrGet(target.AllocsBlankNode[i])
+				buff.WriteInt(f) // write table index
+			} else {
+				buff.WriteString(target.AllocsBlankNode[i]) // write string
+			}
+		}
+		// --- [end][write][slice]([]string) ---
+
+	}
+	if target.NodesWithNoAllocs == nil {
+		buff.WriteUInt8(uint8(0)) // write nil byte
+	} else {
+		buff.WriteUInt8(uint8(1)) // write non-nil byte
+
+		// --- [begin][write][slice]([]string) ---
+		buff.WriteInt(len(target.NodesWithNoAllocs)) // array length
+		for j := 0; j < len(target.NodesWithNoAllocs); j++ {
+			if ctx.IsStringTable() {
+				g := ctx.Table.AddOrGet(target.NodesWithNoAllocs[j])
+				buff.WriteInt(g) // write table index
+			} else {
+				buff.WriteString(target.NodesWithNoAllocs[j]) // write string
+			}
+		}
+		// --- [end][write][slice]([]string) ---
+
+	}
+	if target.MissingNodes == nil {
+		buff.WriteUInt8(uint8(0)) // write nil byte
+	} else {
+		buff.WriteUInt8(uint8(1)) // write non-nil byte
+
+		// --- [begin][write][slice]([]string) ---
+		buff.WriteInt(len(target.MissingNodes)) // array length
+		for ii := 0; ii < len(target.MissingNodes); ii++ {
+			if ctx.IsStringTable() {
+				h := ctx.Table.AddOrGet(target.MissingNodes[ii])
+				buff.WriteInt(h) // write table index
+			} else {
+				buff.WriteString(target.MissingNodes[ii]) // write string
+			}
+		}
+		// --- [end][write][slice]([]string) ---
+
+	}
+	return nil
+}
+
+// UnmarshalBinary uses the data passed byte array to set all the internal properties of
+// the AllocationReconciliationAudit type
+func (target *AllocationReconciliationAudit) UnmarshalBinary(data []byte) error {
+	var table []string
+	buff := util.NewBufferFromBytes(data)
+
+	// string table header validation
+	if isBinaryTag(data, BinaryTagStringTable) {
+		buff.ReadBytes(len(BinaryTagStringTable)) // strip tag length
+		tl := buff.ReadInt()                      // table length
+		if tl > 0 {
+			table = make([]string, tl, tl)
+			for i := 0; i < tl; i++ {
+				table[i] = buff.ReadString()
+			}
+		}
+	}
+
+	ctx := &DecodingContext{
+		Buffer: buff,
+		Table:  table,
+	}
+
+	err := target.UnmarshalBinaryWithContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnmarshalBinaryWithContext uses the context containing a string table and binary buffer to set all the internal properties of
+// the AllocationReconciliationAudit type
+func (target *AllocationReconciliationAudit) UnmarshalBinaryWithContext(ctx *DecodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	version := buff.ReadUInt8()
+
+	if version > AuditCodecVersion {
+		return fmt.Errorf("Invalid Version Unmarshaling AllocationReconciliationAudit. Expected %d or less, got %d", AuditCodecVersion, version)
+	}
+
+	if uint8(0) /* field version */ <= version {
+		// --- [begin][read][alias](AuditStatus) ---
+		var a string
+		var c string
+		if ctx.IsStringTable() {
+			d := buff.ReadInt() // read string index
+			c = ctx.Table[d]
+		} else {
+			c = buff.ReadString() // read string
+		}
+		b := c
+		a = b
+
+		target.Status = AuditStatus(a)
+		// --- [end][read][alias](AuditStatus) ---
+
+	} else {
+	}
+
+	if uint8(0) /* field version */ <= version {
+		var f string
+		if ctx.IsStringTable() {
+			g := buff.ReadInt() // read string index
+			f = ctx.Table[g]
+		} else {
+			f = buff.ReadString() // read string
+		}
+		e := f
+		target.Description = e
+
+	} else {
+		target.Description = "" // default
+	}
+
+	if uint8(0) /* field version */ <= version {
+		// --- [begin][read][reference](time.Time) ---
+		h := &time.Time{}
+		k := buff.ReadInt()    // byte array length
+		l := buff.ReadBytes(k) // byte array
+		errA := h.UnmarshalBinary(l)
+		if errA != nil {
+			return errA
+		}
+		target.LastRun = *h
+		// --- [end][read][reference](time.Time) ---
+
+	} else {
+	}
+
+	if uint8(0) /* field version */ <= version {
+		if buff.ReadUInt8() == uint8(0) {
+			target.Resources = nil
+		} else {
+			// --- [begin][read][map](map[string]map[string]*AuditFloatResult) ---
+			n := buff.ReadInt() // map len
+			m := make(map[string]map[string]*AuditFloatResult, n)
+			for i := 0; i < n; i++ {
+				var v string
+				var p string
+				if ctx.IsStringTable() {
+					q := buff.ReadInt() // read string index
+					p = ctx.Table[q]
+				} else {
+					p = buff.ReadString() // read string
+				}
+				o := p
+				v = o
+
+				var z map[string]*AuditFloatResult
+				if buff.ReadUInt8() == uint8(0) {
+					z = nil
+				} else {
+					// --- [begin][read][map](map[string]*AuditFloatResult) ---
+					s := buff.ReadInt() // map len
+					r := make(map[string]*AuditFloatResult, s)
+					for j := 0; j < s; j++ {
+						var vv string
+						var u string
+						if ctx.IsStringTable() {
+							w := buff.ReadInt() // read string index
+							u = ctx.Table[w]
+						} else {
+							u = buff.ReadString() // read string
+						}
+						t := u
+						vv = t
+
+						var zz *AuditFloatResult
+						if buff.ReadUInt8() == uint8(0) {
+							zz = nil
+						} else {
+							// --- [begin][read][struct](AuditFloatResult) ---
+							x := &AuditFloatResult{}
+							buff.ReadInt() // [compatibility, unused]
+							errB := x.UnmarshalBinaryWithContext(ctx)
+							if errB != nil {
+								return errB
+							}
+							zz = x
+							// --- [end][read][struct](AuditFloatResult) ---
+
+						}
+						r[vv] = zz
+					}
+					z = r
+					// --- [end][read][map](map[string]*AuditFloatResult) ---
+
+				}
+				m[v] = z
+			}
+			target.Resources = m
+			// --- [end][read][map](map[string]map[string]*AuditFloatResult) ---
+
+		}
+	} else {
+		target.Resources = nil
+
+	}
+
+	if uint8(0) /* field version */ <= version {
+		if buff.ReadUInt8() == uint8(0) {
+			target.AllocsBlankNode = nil
+		} else {
+			// --- [begin][read][slice]([]string) ---
+			aa := buff.ReadInt() // array len
+			y := make([]string, aa)
+			for ii := 0; ii < aa; ii++ {
+				var bb string
+				var dd string
+				if ctx.IsStringTable() {
+					ee := buff.ReadInt() // read string index
+					dd = ctx.Table[ee]
+				} else {
+					dd = buff.ReadString() // read string
+				}
+				cc := dd
+				bb = cc
+
+				y[ii] = bb
+			}
+			target.AllocsBlankNode = y
+			// --- [end][read][slice]([]string) ---
+
+		}
+	} else {
+		target.AllocsBlankNode = nil
+
+	}
+
+	if uint8(0) /* field version */ <= version {
+		if buff.ReadUInt8() == uint8(0) {
+			target.NodesWithNoAllocs = nil
+		} else {
+			// --- [begin][read][slice]([]string) ---
+			gg := buff.ReadInt() // array len
+			ff := make([]string, gg)
+			for jj := 0; jj < gg; jj++ {
+				var hh string
+				var ll string
+				if ctx.IsStringTable() {
+					mm := buff.ReadInt() // read string index
+					ll = ctx.Table[mm]
+				} else {
+					ll = buff.ReadString() // read string
+				}
+				kk := ll
+				hh = kk
+
+				ff[jj] = hh
+			}
+			target.NodesWithNoAllocs = ff
+			// --- [end][read][slice]([]string) ---
+
+		}
+	} else {
+		target.NodesWithNoAllocs = nil
+
+	}
+
+	if uint8(0) /* field version */ <= version {
+		if buff.ReadUInt8() == uint8(0) {
+			target.MissingNodes = nil
+		} else {
+			// --- [begin][read][slice]([]string) ---
+			oo := buff.ReadInt() // array len
+			nn := make([]string, oo)
+			for iii := 0; iii < oo; iii++ {
+				var pp string
+				var rr string
+				if ctx.IsStringTable() {
+					ss := buff.ReadInt() // read string index
+					rr = ctx.Table[ss]
+				} else {
+					rr = buff.ReadString() // read string
+				}
+				qq := rr
+				pp = qq
+
+				nn[iii] = pp
+			}
+			target.MissingNodes = nn
+			// --- [end][read][slice]([]string) ---
+
+		}
+	} else {
+		target.MissingNodes = nil
+
 	}
 
 	return nil
@@ -2968,6 +3413,583 @@ func (target *AssetSetRange) UnmarshalBinaryWithContext(ctx *DecodingContext) (e
 
 	} else {
 		target.FromStore = "" // default
+	}
+
+	return nil
+}
+
+//--------------------------------------------------------------------------
+//  Audit
+//--------------------------------------------------------------------------
+
+// MarshalBinary serializes the internal properties of this Audit instance
+// into a byte array
+func (target *Audit) MarshalBinary() (data []byte, err error) {
+	ctx := &EncodingContext{
+		Buffer: util.NewBuffer(),
+		Table:  nil,
+	}
+
+	e := target.MarshalBinaryWithContext(ctx)
+	if e != nil {
+		return nil, e
+	}
+
+	encBytes := ctx.Buffer.Bytes()
+	return encBytes, nil
+}
+
+// MarshalBinaryWithContext serializes the internal properties of this Audit instance
+// into a byte array leveraging a predefined context.
+func (target *Audit) MarshalBinaryWithContext(ctx *EncodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	buff.WriteUInt8(AuditCodecVersion) // version
+
+	// --- [begin][write][alias](AuditType) ---
+	if ctx.IsStringTable() {
+		a := ctx.Table.AddOrGet(string(target.AuditType))
+		buff.WriteInt(a) // write table index
+	} else {
+		buff.WriteString(string(target.AuditType)) // write string
+	}
+	// --- [end][write][alias](AuditType) ---
+
+	// --- [begin][write][alias](AuditStatus) ---
+	if ctx.IsStringTable() {
+		b := ctx.Table.AddOrGet(string(target.Status))
+		buff.WriteInt(b) // write table index
+	} else {
+		buff.WriteString(string(target.Status)) // write string
+	}
+	// --- [end][write][alias](AuditStatus) ---
+
+	if ctx.IsStringTable() {
+		c := ctx.Table.AddOrGet(target.Description)
+		buff.WriteInt(c) // write table index
+	} else {
+		buff.WriteString(target.Description) // write string
+	}
+	// --- [begin][write][reference](time.Time) ---
+	d, errA := target.LastRun.MarshalBinary()
+	if errA != nil {
+		return errA
+	}
+	buff.WriteInt(len(d))
+	buff.WriteBytes(d)
+	// --- [end][write][reference](time.Time) ---
+
+	return nil
+}
+
+// UnmarshalBinary uses the data passed byte array to set all the internal properties of
+// the Audit type
+func (target *Audit) UnmarshalBinary(data []byte) error {
+	var table []string
+	buff := util.NewBufferFromBytes(data)
+
+	// string table header validation
+	if isBinaryTag(data, BinaryTagStringTable) {
+		buff.ReadBytes(len(BinaryTagStringTable)) // strip tag length
+		tl := buff.ReadInt()                      // table length
+		if tl > 0 {
+			table = make([]string, tl, tl)
+			for i := 0; i < tl; i++ {
+				table[i] = buff.ReadString()
+			}
+		}
+	}
+
+	ctx := &DecodingContext{
+		Buffer: buff,
+		Table:  table,
+	}
+
+	err := target.UnmarshalBinaryWithContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnmarshalBinaryWithContext uses the context containing a string table and binary buffer to set all the internal properties of
+// the Audit type
+func (target *Audit) UnmarshalBinaryWithContext(ctx *DecodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	version := buff.ReadUInt8()
+
+	if version > AuditCodecVersion {
+		return fmt.Errorf("Invalid Version Unmarshaling Audit. Expected %d or less, got %d", AuditCodecVersion, version)
+	}
+
+	if uint8(0) /* field version */ <= version {
+		// --- [begin][read][alias](AuditType) ---
+		var a string
+		var c string
+		if ctx.IsStringTable() {
+			d := buff.ReadInt() // read string index
+			c = ctx.Table[d]
+		} else {
+			c = buff.ReadString() // read string
+		}
+		b := c
+		a = b
+
+		target.AuditType = AuditType(a)
+		// --- [end][read][alias](AuditType) ---
+
+	} else {
+	}
+
+	if uint8(0) /* field version */ <= version {
+		// --- [begin][read][alias](AuditStatus) ---
+		var e string
+		var g string
+		if ctx.IsStringTable() {
+			h := buff.ReadInt() // read string index
+			g = ctx.Table[h]
+		} else {
+			g = buff.ReadString() // read string
+		}
+		f := g
+		e = f
+
+		target.Status = AuditStatus(e)
+		// --- [end][read][alias](AuditStatus) ---
+
+	} else {
+	}
+
+	if uint8(0) /* field version */ <= version {
+		var l string
+		if ctx.IsStringTable() {
+			m := buff.ReadInt() // read string index
+			l = ctx.Table[m]
+		} else {
+			l = buff.ReadString() // read string
+		}
+		k := l
+		target.Description = k
+
+	} else {
+		target.Description = "" // default
+	}
+
+	if uint8(0) /* field version */ <= version {
+		// --- [begin][read][reference](time.Time) ---
+		n := &time.Time{}
+		o := buff.ReadInt()    // byte array length
+		p := buff.ReadBytes(o) // byte array
+		errA := n.UnmarshalBinary(p)
+		if errA != nil {
+			return errA
+		}
+		target.LastRun = *n
+		// --- [end][read][reference](time.Time) ---
+
+	} else {
+	}
+
+	return nil
+}
+
+//--------------------------------------------------------------------------
+//  AuditFloatResult
+//--------------------------------------------------------------------------
+
+// MarshalBinary serializes the internal properties of this AuditFloatResult instance
+// into a byte array
+func (target *AuditFloatResult) MarshalBinary() (data []byte, err error) {
+	ctx := &EncodingContext{
+		Buffer: util.NewBuffer(),
+		Table:  nil,
+	}
+
+	e := target.MarshalBinaryWithContext(ctx)
+	if e != nil {
+		return nil, e
+	}
+
+	encBytes := ctx.Buffer.Bytes()
+	return encBytes, nil
+}
+
+// MarshalBinaryWithContext serializes the internal properties of this AuditFloatResult instance
+// into a byte array leveraging a predefined context.
+func (target *AuditFloatResult) MarshalBinaryWithContext(ctx *EncodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	buff.WriteUInt8(AuditCodecVersion) // version
+
+	buff.WriteFloat64(target.Expected) // write float64
+	buff.WriteFloat64(target.Actual)   // write float64
+	return nil
+}
+
+// UnmarshalBinary uses the data passed byte array to set all the internal properties of
+// the AuditFloatResult type
+func (target *AuditFloatResult) UnmarshalBinary(data []byte) error {
+	var table []string
+	buff := util.NewBufferFromBytes(data)
+
+	// string table header validation
+	if isBinaryTag(data, BinaryTagStringTable) {
+		buff.ReadBytes(len(BinaryTagStringTable)) // strip tag length
+		tl := buff.ReadInt()                      // table length
+		if tl > 0 {
+			table = make([]string, tl, tl)
+			for i := 0; i < tl; i++ {
+				table[i] = buff.ReadString()
+			}
+		}
+	}
+
+	ctx := &DecodingContext{
+		Buffer: buff,
+		Table:  table,
+	}
+
+	err := target.UnmarshalBinaryWithContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnmarshalBinaryWithContext uses the context containing a string table and binary buffer to set all the internal properties of
+// the AuditFloatResult type
+func (target *AuditFloatResult) UnmarshalBinaryWithContext(ctx *DecodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	version := buff.ReadUInt8()
+
+	if version > AuditCodecVersion {
+		return fmt.Errorf("Invalid Version Unmarshaling AuditFloatResult. Expected %d or less, got %d", AuditCodecVersion, version)
+	}
+
+	if uint8(0) /* field version */ <= version {
+		a := buff.ReadFloat64() // read float64
+		target.Expected = a
+
+	} else {
+		target.Expected = float64(0) // default
+	}
+
+	if uint8(0) /* field version */ <= version {
+		b := buff.ReadFloat64() // read float64
+		target.Actual = b
+
+	} else {
+		target.Actual = float64(0) // default
+	}
+
+	return nil
+}
+
+//--------------------------------------------------------------------------
+//  AuditSet
+//--------------------------------------------------------------------------
+
+// MarshalBinary serializes the internal properties of this AuditSet instance
+// into a byte array
+func (target *AuditSet) MarshalBinary() (data []byte, err error) {
+	ctx := &EncodingContext{
+		Buffer: util.NewBuffer(),
+		Table:  NewStringTable(),
+	}
+
+	e := target.MarshalBinaryWithContext(ctx)
+	if e != nil {
+		return nil, e
+	}
+
+	encBytes := ctx.Buffer.Bytes()
+	sTableBytes := ctx.Table.ToBytes()
+	merged := appendBytes(sTableBytes, encBytes)
+	return merged, nil
+}
+
+// MarshalBinaryWithContext serializes the internal properties of this AuditSet instance
+// into a byte array leveraging a predefined context.
+func (target *AuditSet) MarshalBinaryWithContext(ctx *EncodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	buff.WriteUInt8(AuditCodecVersion) // version
+
+	if target.AllocationReconciliation == nil {
+		buff.WriteUInt8(uint8(0)) // write nil byte
+	} else {
+		buff.WriteUInt8(uint8(1)) // write non-nil byte
+
+		// --- [begin][write][struct](AllocationReconciliationAudit) ---
+		buff.WriteInt(0) // [compatibility, unused]
+		errA := target.AllocationReconciliation.MarshalBinaryWithContext(ctx)
+		if errA != nil {
+			return errA
+		}
+		// --- [end][write][struct](AllocationReconciliationAudit) ---
+
+	}
+	// --- [begin][write][struct](Window) ---
+	buff.WriteInt(0) // [compatibility, unused]
+	errB := target.Window.MarshalBinaryWithContext(ctx)
+	if errB != nil {
+		return errB
+	}
+	// --- [end][write][struct](Window) ---
+
+	return nil
+}
+
+// UnmarshalBinary uses the data passed byte array to set all the internal properties of
+// the AuditSet type
+func (target *AuditSet) UnmarshalBinary(data []byte) error {
+	var table []string
+	buff := util.NewBufferFromBytes(data)
+
+	// string table header validation
+	if isBinaryTag(data, BinaryTagStringTable) {
+		buff.ReadBytes(len(BinaryTagStringTable)) // strip tag length
+		tl := buff.ReadInt()                      // table length
+		if tl > 0 {
+			table = make([]string, tl, tl)
+			for i := 0; i < tl; i++ {
+				table[i] = buff.ReadString()
+			}
+		}
+	}
+
+	ctx := &DecodingContext{
+		Buffer: buff,
+		Table:  table,
+	}
+
+	err := target.UnmarshalBinaryWithContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnmarshalBinaryWithContext uses the context containing a string table and binary buffer to set all the internal properties of
+// the AuditSet type
+func (target *AuditSet) UnmarshalBinaryWithContext(ctx *DecodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	version := buff.ReadUInt8()
+
+	if version > AuditCodecVersion {
+		return fmt.Errorf("Invalid Version Unmarshaling AuditSet. Expected %d or less, got %d", AuditCodecVersion, version)
+	}
+
+	if uint8(0) /* field version */ <= version {
+		if buff.ReadUInt8() == uint8(0) {
+			target.AllocationReconciliation = nil
+		} else {
+			// --- [begin][read][struct](AllocationReconciliationAudit) ---
+			a := &AllocationReconciliationAudit{}
+			buff.ReadInt() // [compatibility, unused]
+			errA := a.UnmarshalBinaryWithContext(ctx)
+			if errA != nil {
+				return errA
+			}
+			target.AllocationReconciliation = a
+			// --- [end][read][struct](AllocationReconciliationAudit) ---
+
+		}
+	} else {
+		target.AllocationReconciliation = nil
+
+	}
+
+	if uint8(0) /* field version */ <= version {
+		// --- [begin][read][struct](Window) ---
+		b := &Window{}
+		buff.ReadInt() // [compatibility, unused]
+		errB := b.UnmarshalBinaryWithContext(ctx)
+		if errB != nil {
+			return errB
+		}
+		target.Window = *b
+		// --- [end][read][struct](Window) ---
+
+	} else {
+	}
+
+	return nil
+}
+
+//--------------------------------------------------------------------------
+//  AuditSetRange
+//--------------------------------------------------------------------------
+
+// MarshalBinary serializes the internal properties of this AuditSetRange instance
+// into a byte array
+func (target *AuditSetRange) MarshalBinary() (data []byte, err error) {
+	ctx := &EncodingContext{
+		Buffer: util.NewBuffer(),
+		Table:  nil,
+	}
+
+	e := target.MarshalBinaryWithContext(ctx)
+	if e != nil {
+		return nil, e
+	}
+
+	encBytes := ctx.Buffer.Bytes()
+	return encBytes, nil
+}
+
+// MarshalBinaryWithContext serializes the internal properties of this AuditSetRange instance
+// into a byte array leveraging a predefined context.
+func (target *AuditSetRange) MarshalBinaryWithContext(ctx *EncodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	buff.WriteUInt8(AuditCodecVersion) // version
+
+	return nil
+}
+
+// UnmarshalBinary uses the data passed byte array to set all the internal properties of
+// the AuditSetRange type
+func (target *AuditSetRange) UnmarshalBinary(data []byte) error {
+	var table []string
+	buff := util.NewBufferFromBytes(data)
+
+	// string table header validation
+	if isBinaryTag(data, BinaryTagStringTable) {
+		buff.ReadBytes(len(BinaryTagStringTable)) // strip tag length
+		tl := buff.ReadInt()                      // table length
+		if tl > 0 {
+			table = make([]string, tl, tl)
+			for i := 0; i < tl; i++ {
+				table[i] = buff.ReadString()
+			}
+		}
+	}
+
+	ctx := &DecodingContext{
+		Buffer: buff,
+		Table:  table,
+	}
+
+	err := target.UnmarshalBinaryWithContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnmarshalBinaryWithContext uses the context containing a string table and binary buffer to set all the internal properties of
+// the AuditSetRange type
+func (target *AuditSetRange) UnmarshalBinaryWithContext(ctx *DecodingContext) (err error) {
+	// panics are recovered and propagated as errors
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else if s, ok := r.(string); ok {
+				err = fmt.Errorf("Unexpected panic: %s", s)
+			} else {
+				err = fmt.Errorf("Unexpected panic: %+v", r)
+			}
+		}
+	}()
+
+	buff := ctx.Buffer
+	version := buff.ReadUInt8()
+
+	if version > AuditCodecVersion {
+		return fmt.Errorf("Invalid Version Unmarshaling AuditSetRange. Expected %d or less, got %d", AuditCodecVersion, version)
 	}
 
 	return nil
